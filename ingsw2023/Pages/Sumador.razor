@@ -1,0 +1,44 @@
+﻿@page "/sumador"
+@using System.Linq.Expressions;
+
+<PageTitle>Sumador</PageTitle>
+
+<h1>Sumador</h1>
+
+<EditForm Model="@model" OnSubmit="() => SumarNumeros(model.primerSumando, model.segundoSumando)">
+    <InputNumber DisplayName="Primer sumando"
+                 TValue="int"
+                 @bind-Value="@model.primerSumando">
+    </InputNumber>
+
+    <InputNumber DisplayName="Segundo sumando"
+                 TValue="int"
+                 @bind-Value="@model.segundoSumando">
+    </InputNumber>
+
+
+    <button class="btn btn-primary" type="submit">Realizar suma</button>
+
+    
+</EditForm>
+
+<p role="status">Resultado: @model.resultadoSuma</p>
+
+
+@code {
+    public class FormModel
+    {
+        public int primerSumando { get; set; }
+        public int segundoSumando { get; set; }
+        public int resultadoSuma { get; set; }
+    }
+    
+    public FormModel model { get; set; } = new();
+
+    public int SumarNumeros(int a, int b)
+    {
+        model.resultadoSuma = a + b;
+
+        return model.resultadoSuma;
+    }
+}
