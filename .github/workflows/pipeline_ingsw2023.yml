@@ -5,7 +5,7 @@ name: MiPrimerPipeline
 
 on:
   push:
-    branches: [ "other" ]
+    branches: [ "master" ]
 
 jobs:
   build:
