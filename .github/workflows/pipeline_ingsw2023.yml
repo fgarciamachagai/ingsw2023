@@ -5,7 +5,7 @@ name: MiPrimerPipeline
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "other" ]
 
 jobs:
   build:
@@ -91,7 +91,7 @@ jobs:
           SLACK_CHANNEL: mi-pipeline
           SLACK_COLOR: '#FF4D4D'
           SLACK_ICON: https://slack.com/img/icons/app-57.png
-          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app'
+          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app ::error'
           SLACK_TITLE: Deploy Error
           SLACK_USERNAME: Slack Notifier
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
