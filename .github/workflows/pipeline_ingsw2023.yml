@@ -5,15 +5,19 @@ name: MiPrimerPipeline
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [ "other" ]
 
 jobs:
-  build_test_deploy_job:
+  build:
+    name: Build and Test Job
     runs-on: ubuntu-latest
-    name: Build, Test and Deploy Job
     steps:
+    - name: whatsapp-notify
+      uses: kaviadigdarshan/whatsapp-actions@main
+      env:
+        ACCOUNT_SID: ${{ secrets.ACCOUNT_SID_TWILIO }}
+        AUTH_TOKEN: ${{ secrets.AUTH_TOKEN_TWILIO }}
+        TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
     - uses: actions/checkout@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
@@ -25,6 +29,47 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      
+  feedbackBuildError: 
+    needs: [build]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Ocurrió un error durante la build'
+          SLACK_TITLE: Build Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  feedbackBuildSuccess: 
+    needs: [build]
+    if: success()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#00FF80'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'La build se realizó exitosamente'
+          SLACK_TITLE: Build Success
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  
+  deploy:
+    name: Deploy Job
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
     - name: Deploy
       id: builddeploy
       uses: Azure/static-web-apps-deploy@v1
@@ -34,3 +79,37 @@ jobs:
         action: "upload"
         app_location: "ingsw2023" # App source code path
         output_location: "wwwroot" # Built app content directory - optional
+
+  feedbackDeployError: 
+    needs: [deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app ::error'
+          SLACK_TITLE: Deploy Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  feedbackDeploySuccess: 
+    needs: [deploy]
+    if: success()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#00FF80'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'El deploy de la app se realizó exitosamente'
+          SLACK_TITLE: Deploy Success
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+
