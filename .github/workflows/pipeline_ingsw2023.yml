@@ -5,13 +5,19 @@ name: MiPrimerPipeline
 
 on:
   push:
-    branches: [ "other" ]
+    branches: [ "master" ]
 
 jobs:
   build:
     name: Build and Test Job
     runs-on: ubuntu-latest
     steps:
+    - name: whatsapp-notify
+      uses: kaviadigdarshan/whatsapp-actions@main
+      env:
+        ACCOUNT_SID: ${{ secrets.ACCOUNT_SID_TWILIO }}
+        AUTH_TOKEN: ${{ secrets.AUTH_TOKEN_TWILIO }}
+        TO_WHATSAPP_NUMBER: ${{ secrets.TO_WHATSAPP_NUMBER }}
     - uses: actions/checkout@v3
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
