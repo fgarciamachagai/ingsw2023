@@ -23,6 +23,38 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+      
+  feedbackBuildError: 
+    needs: [build]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Ocurrió un error durante la build'
+          SLACK_TITLE: Build Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  feedbackBuildSuccess: 
+    needs: [build]
+    if: success()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#00FF80'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'La build se realizó exitosamente'
+          SLACK_TITLE: Build Success
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   
   deploy:
     name: Deploy Job
@@ -38,18 +70,36 @@ jobs:
         app_location: "ingsw2023" # App source code path
         output_location: "wwwroot" # Built app content directory - optional
 
-  feedbackBuildFailure: 
-      needs: [build]
-      if: failure()
-      runs-on: ubuntu-latest
-      steps: 
-        - name: Slack Notification
-          uses: rtCamp/action-slack-notify@v2
-          env:
-            SLACK_CHANNEL: general
-            SLACK_COLOR: '#fc1500'
-            SLACK_ICON: https://github.com/rtCamp.png?size=48
-            SLACK_MESSAGE: 'Fallo al hacer el build'
-            SLACK_TITLE: Build Status
-            SLACK_USERNAME: Slack Bot
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  feedbackDeployError: 
+    needs: [deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app'
+          SLACK_TITLE: Deploy Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  feedbackDeploySuccess: 
+    needs: [deploy]
+    if: success()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#00FF80'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'El deploy de la app se realizó exitosamente'
+          SLACK_TITLE: Deploy Success
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+
