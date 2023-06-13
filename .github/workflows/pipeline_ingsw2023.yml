@@ -87,7 +87,7 @@ jobs:
       uses: atlassian/gajira-transition@v3
       with:
         issue: INGSW2023-1
-        transition: "In progress"
+        transition: "En curso"
 
 
   feedbackBuildSuccess: 
