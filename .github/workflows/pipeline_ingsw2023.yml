@@ -112,10 +112,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@master
-      #with:
-      #  projectBaseDir: app/src
+      uses: sonarsource/sonarcloud-github-action@master
+      with:
+        projectBaseDir: ingsw2023/
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     #- name: SonarQube Quality Gate check
