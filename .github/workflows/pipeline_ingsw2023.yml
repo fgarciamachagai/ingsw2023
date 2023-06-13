@@ -72,7 +72,7 @@ jobs:
       uses: atlassian/gajira-create@v3
       with:
         project: INGSW2023
-        issuetype: Incident
+        issuetype: Task
         summary: Build con errores ${{ github.repository }}
         description: Ocurrió un error durante la compilación de la rama master
         #fields: '{"customfield_10171": "test"}'
