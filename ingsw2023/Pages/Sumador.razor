@@ -32,12 +32,17 @@
         public int segundoSumando { get; set; }
         public int resultadoSuma { get; set; }
     }
-    
+
     public FormModel model { get; set; } = new();
 
     public int SumarNumeros(int a, int b)
     {
-        model.resultadoSuma = a + b;
+        int primerSumando = a;
+        int segundoSumando = b;
+        int suma = primerSumando + segundoSumando;
+        model.resultadoSuma = suma;
+
+        //model.resultadoSuma = a + b;
 
         return model.resultadoSuma;
     }
