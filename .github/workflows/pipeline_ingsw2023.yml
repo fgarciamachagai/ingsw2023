@@ -109,6 +109,7 @@ jobs:
   deploy:
     name: Deploy Job
     needs: [build]
+    if: success()
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
