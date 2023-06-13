@@ -159,10 +159,7 @@ jobs:
       run: |
         .\.sonar\scanner\dotnet-sonarscanner begin /k:"fgarciamachagai_ingsw2023" /o:"fgarciamachagai" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
         dotnet build --configuration Release
-        dotnet test -c release --no-build aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj --collect:"Code Coverage"
-        echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-        echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-        echo dir
+        dotnet-coverage collect 'dotnet test' -f xml -o 'coverage.xml'
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
     #- name: SonarQube Quality Gate check
