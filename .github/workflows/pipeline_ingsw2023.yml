@@ -86,7 +86,7 @@ jobs:
       id: transition01
       uses: atlassian/gajira-transition@v3
       with:
-        issue: incidencia01
+        issue: INGSW2023-1
         transition: "In progress"
 
 
