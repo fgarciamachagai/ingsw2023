@@ -45,6 +45,50 @@ jobs:
           SLACK_TITLE: Build Error
           SLACK_USERNAME: Slack Notifier
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  
+  jiraCreateIssue:
+    needs: [build]
+    if: failure()
+    runs-on: ubuntu-latest
+    name: Jira Create Issue
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@v3
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+    - name: Jira TODO
+      id: incidencia1
+      uses: atlassian/gajira-todo@v3
+      with:
+        project: ingsw2023
+        issuetype: Task
+        description: Incidencia creada automáticamente desde GitHub Actions
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  jiraTransitionIssue:
+    needs: [build]
+    if: success()
+    runs-on: ubuntu-latest
+    name: Jira Transition Issue
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@v3
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+
+    - name: Jira transition in progress
+      id: transition1
+      uses: atlassian/gajira-transition@v3
+      with:
+        issue: incidencia1
+        transition: "In progress"
+
 
   feedbackBuildSuccess: 
     needs: [build]
@@ -91,7 +135,7 @@ jobs:
           SLACK_CHANNEL: mi-pipeline
           SLACK_COLOR: '#FF4D4D'
           SLACK_ICON: https://slack.com/img/icons/app-57.png
-          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app ::error'
+          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app'
           SLACK_TITLE: Deploy Error
           SLACK_USERNAME: Slack Notifier
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
