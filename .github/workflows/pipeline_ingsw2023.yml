@@ -71,13 +71,13 @@ jobs:
       id: create
       uses: atlassian/gajira-create@v3
       with:
-        project: ingsw2023
-        issuetype: Build
+        project: INGSW2023
+        issuetype: Incident
         summary: Build con errores ${{ github.repository }}
         description: Ocurrió un error durante la compilación de la rama master
-        fields: '{"customfield_10171": "test"}'
-    - name: Log created issue
-      run: echo "Issue ${{ steps.create.outputs.issue }} was created"
+        #fields: '{"customfield_10171": "test"}'
+    #- name: Log created issue
+    #  run: echo "Issue ${{ steps.create.outputs.issue }} was created"
 
       
   jiraTransitionIssue:
