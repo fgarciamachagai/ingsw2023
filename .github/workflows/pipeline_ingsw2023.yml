@@ -58,26 +58,16 @@ jobs:
         JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-    #- name: Jira TODO
-    #  id: create
-    #  uses: atlassian/gajira-todo@v3
-    #  with:
-    #    project: ingsw2023
-    #    issuetype: Task
-    #    description: Incidencia creada automáticamente desde GitHub Actions
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Create
-      id: create
+      id: incidente01
       uses: atlassian/gajira-create@v3
       with:
         project: INGSW2023
         issuetype: Task
         summary: Build con errores ${{ github.repository }}
         description: Ocurrió un error durante la compilación de la rama master
-        #fields: '{"customfield_10171": "test"}'
-    #- name: Log created issue
-    #  run: echo "Issue ${{ steps.create.outputs.issue }} was created"
+    - name: Log created issue
+      run: echo "Issue ${{ steps.create.outputs.issue }} was created"
 
       
   jiraTransitionIssue:
@@ -92,12 +82,11 @@ jobs:
         JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-
     - name: Jira transition in progress
-      id: transition1
+      id: transition01
       uses: atlassian/gajira-transition@v3
       with:
-        issue: incidencia1
+        issue: incidencia01
         transition: "In progress"
 
 
