@@ -37,13 +37,28 @@
 
     public int SumarNumeros(int a, int b)
     {
-        int primerSumando = a;
-        int segundoSumando = b;
-        int suma = primerSumando + segundoSumando;
-        model.resultadoSuma = suma;
-
-        //model.resultadoSuma = a + b;
+        model.resultadoSuma = a + b;
 
         return model.resultadoSuma;
+    }
+
+    public int calculateAverage(int[] numbers)
+    {
+        int sum = 0;
+        foreach (int number in numbers)
+        {
+            sum += number;
+        }
+        return sum / numbers.Length;
+    }
+
+    public int calculateSum(int[] numbers)
+    {
+        int sum = 0;
+        foreach (int number in numbers)
+        {
+            sum += number;
+        }
+        return sum;
     }
 }
