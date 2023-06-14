@@ -5,7 +5,8 @@ name: MiPrimerPipeline
 
 on:
   push:
-    branches: [ "master" ]
+    #branches: [ "master" ]
+    branches: [ "other" ]
 
 jobs:
   build:
@@ -30,136 +31,80 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
       
-  #feedbackBuildError: 
-  #  needs: [build]
-  #  if: failure()
-  #  runs-on: ubuntu-latest
-  #  steps: 
-  #    - name: Slack Error Notification
-  #      uses: rtCamp/action-slack-notify@v2
-  #      env:
-  #        SLACK_CHANNEL: mi-pipeline
-  #        SLACK_COLOR: '#FF4D4D'
-  #        SLACK_ICON: https://slack.com/img/icons/app-57.png
-  #        SLACK_MESSAGE: 'Ocurrió un error durante la build'
-  #        SLACK_TITLE: Build Error
-  #        SLACK_USERNAME: Slack Notifier
-  #        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  feedbackBuildError: 
+    needs: [build]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Ocurrió un error durante la build'
+          SLACK_TITLE: Build Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
   
-  #jiraCreateIssue:
-  #  needs: [build]
-  #  if: failure()
-  #  runs-on: ubuntu-latest
-  #  name: Jira Create Issue
-  #  steps:
-  #  - name: Login
-  #    uses: atlassian/gajira-login@v3
-  #    env:
-  #      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-  #      JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-  #      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-  #  - name: Create
-  #    id: incidente01
-  #    uses: atlassian/gajira-create@v3
-  #    with:
-  #      project: INGSW2023
-  #      issuetype: Task
-  #      summary: Build con errores ${{ github.repository }}
-  #      description: Ocurrió un error durante la compilación de la rama master
-  #  - name: Log created issue
-  #    run: echo "Issue ${{ steps.create.outputs.issue }} was created"
+  jiraCreateIssue:
+    needs: [build]
+    if: failure()
+    runs-on: ubuntu-latest
+    name: Jira Create Issue
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@v3
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+    - name: Create
+      id: incidente01
+      uses: atlassian/gajira-create@v3
+      with:
+        project: INGSW2023
+        issuetype: Task
+        summary: Build con errores ${{ github.repository }}
+        description: Ocurrió un error durante la compilación de la rama master
+    - name: Log created issue
+      run: echo "Issue ${{ steps.create.outputs.issue }} was created"
 
-  #jiraTransitionIssue:
-  #  needs: [build]
-  #  if: success()
-  #  runs-on: ubuntu-latest
-  #  name: Jira Transition Issue
-  #  steps:
-  #  - name: Login
-  #    uses: atlassian/gajira-login@v3
-  #    env:
-  #      JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-  #      JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
-  #      JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-  #  - name: Jira transition in progress
-  #    id: transition01
-  #    uses: atlassian/gajira-transition@v3
-  #    with:
-  #      issue: INGSW2023-1
-  #      transition: "En curso"
-
-
-  #feedbackBuildSuccess: 
-  #  needs: [build]
-  #  if: success()
-  #  runs-on: ubuntu-latest
-  #  steps: 
-  #    - name: Slack Success Notification
-  #      uses: rtCamp/action-slack-notify@v2
-  #      env:
-  #        SLACK_CHANNEL: mi-pipeline
-  #        SLACK_COLOR: '#00FF80'
-  #        SLACK_ICON: https://slack.com/img/icons/app-57.png
-  #        SLACK_MESSAGE: 'La build se realizó exitosamente'
-  #        SLACK_TITLE: Build Success
-  #        SLACK_USERNAME: Slack Notifier
-  #        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-
-  #sonarqubeCheck: 
-  #  needs: [build]
-  #  if: success()
-  #  runs-on: ubuntu-latest
-  #  steps:
-  #  - uses: actions/checkout@v3
-  #  - name: SonarQube Scan
-  #    uses: sonarsource/sonarcloud-github-action@master
-  #    with:
-  #      projectBaseDir: ingsw2023/
-  #    env:
-  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  jiraTransitionIssue:
+    needs: [build]
+    if: success()
+    runs-on: ubuntu-latest
+    name: Jira Transition Issue
+    steps:
+    - name: Login
+      uses: atlassian/gajira-login@v3
+      env:
+        JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+    - name: Jira transition in progress
+      id: transition01
+      uses: atlassian/gajira-transition@v3
+      with:
+        issue: INGSW2023-1
+        transition: "En curso"
 
 
-  #sonarqubeCheck:
-  #  name: Code Inspection
-  #  needs: [build]
-  #  if: success()
-  #  runs-on: windows-latest
-  #  steps:
-  #  - name: Set up JDK 11
-  #    uses: actions/setup-java@v3
-  #    with:
-  #      java-version: 11
-  #      distribution: 'zulu' # Alternative distribution options are available.
-  #  - uses: actions/checkout@v3
-  #  - name: Cache SonarCloud packages
-  #    uses: actions/cache@v3
-  #    with:
-  #      path: ~\sonar\cache
-  #      key: ${{ runner.os }}-sonar
-  #      restore-keys: ${{ runner.os }}-sonar
-  #  - name: Cache SonarCloud scanner
-  #    id: cache-sonar-scanner
-  #    uses: actions/cache@v3
-  #    with:
-  #      path: .\.sonar\scanner
-  #      key: ${{ runner.os }}-sonar-scanner
-  #      restore-keys: ${{ runner.os }}-sonar-scanner
-  #  - name: Install SonarCloud scanner
-  #    if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-  #    shell: powershell
-  #    run: |
-  #      New-Item -Path .\.sonar\scanner -ItemType Directory
-  #      dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-  #  - name: Build and analyze
-  #    env:
-  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-  #      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #    shell: powershell
-  #    run: |
-  #      .\.sonar\scanner\dotnet-sonarscanner begin /k:"fgarciamachagai_ingsw2023" /o:"fgarciamachagai" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-  #      dotnet build --configuration Release
-  #      .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+  feedbackBuildSuccess: 
+    needs: [build]
+    if: success()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#00FF80'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'La build se realizó exitosamente'
+          SLACK_TITLE: Build Success
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
   sonarqubeCheck:
     name: Code Inspection
@@ -167,83 +112,124 @@ jobs:
     if: success()
     runs-on: windows-latest
     steps:
-    - name: SonarQube Quality Gate check
-      id: sonarqube-quality-gate-check
-      uses: sonarsource/sonarqube-quality-gate-action@master
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
       with:
-        scanMetadataReportFile: .sonarqube/out/.sonar/report-task.txt
-      #Force to fail step after specific time.
-      timeout-minutes: 5
+        java-version: 11
+        distribution: 'zulu' # Alternative distribution options are available.
+    - uses: actions/checkout@v3
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v3
+      with:
+        path: ~\sonar\cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache SonarCloud scanner
+      id: cache-sonar-scanner
+      uses: actions/cache@v3
+      with:
+        path: .\.sonar\scanner
+        key: ${{ runner.os }}-sonar-scanner
+        restore-keys: ${{ runner.os }}-sonar-scanner
+    - name: Install SonarCloud scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        New-Item -Path .\.sonar\scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+    - name: Build and analyze
       env:
-       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
-    
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: powershell
+      run: |
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"fgarciamachagai_ingsw2023" /o:"fgarciamachagai" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+        dotnet build --configuration Release
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-  #feedbackSonarqubeError: 
-  #  needs: [sonarqubeCheck]
-  #  if: failure()
-  #  runs-on: ubuntu-latest
-  #  steps: 
-  #    - name: Slack Error Notification
-  #      uses: rtCamp/action-slack-notify@v2
-  #      env:
-  #        SLACK_CHANNEL: mi-pipeline
-  #        SLACK_COLOR: '#FF4D4D'
-  #        SLACK_ICON: https://slack.com/img/icons/app-57.png
-  #        SLACK_MESSAGE: 'Se detectó un error de calidad durante la inspección del código'
-  #        SLACK_TITLE: Code Inspection Error
-  #        SLACK_USERNAME: Slack Notifier
-  #        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-    
-  #deploy:
-  #  name: Deploy Job
+  #sonarqubeCheck:
+  #  name: Code Inspection
   #  needs: [build]
   #  if: success()
-  #  runs-on: ubuntu-latest
+  #  runs-on: windows-latest
   #  steps:
-  #  - uses: actions/checkout@v3
+  #  - name: SonarQube Quality Gate check
+  #    id: sonarqube-quality-gate-check
+  #    uses: sonarsource/sonarqube-quality-gate-action@master
   #    with:
-  #      submodules: true
-  #  - name: Deploy
-  #    id: builddeploy
-  #    uses: Azure/static-web-apps-deploy@v1
-  #    with:
-  #      azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_GROUND_01BD0960F }}
-  #      repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-  #      action: "upload"
-  #      app_location: "ingsw2023" # App source code path
-  #      output_location: "wwwroot" # Built app content directory - optional
+  #      scanMetadataReportFile: .sonarqube/out/.sonar/report-task.txt
+  #    #Force to fail step after specific time.
+  #    timeout-minutes: 5
+  #    env:
+  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
+    
 
-  #feedbackDeployError: 
-  #  needs: [deploy]
-  #  if: failure()
-  #  runs-on: ubuntu-latest
-  #  steps: 
-  #    - name: Slack Error Notification
-  #      uses: rtCamp/action-slack-notify@v2
-  #      env:
-  #        SLACK_CHANNEL: mi-pipeline
-  #        SLACK_COLOR: '#FF4D4D'
-  #        SLACK_ICON: https://slack.com/img/icons/app-57.png
-  #        SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app'
-  #        SLACK_TITLE: Deploy Error
-  #        SLACK_USERNAME: Slack Notifier
-  #        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  feedbackSonarqubeError: 
+    needs: [sonarqubeCheck]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Se detectó un error de calidad durante la inspección del código'
+          SLACK_TITLE: Code Inspection Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    
+  deploy:
+    name: Deploy Job
+    needs: [build]
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Deploy
+      id: builddeploy
+      uses: Azure/static-web-apps-deploy@v1
+      with:
+        azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_LEMON_GROUND_01BD0960F }}
+        repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+        action: "upload"
+        app_location: "ingsw2023" # App source code path
+        output_location: "wwwroot" # Built app content directory - optional
 
-  #feedbackDeploySuccess: 
-  #  needs: [deploy]
-  #  if: success()
-  #  runs-on: ubuntu-latest
-  #  steps: 
-  #    - name: Slack Success Notification
-  #      uses: rtCamp/action-slack-notify@v2
-  #      env:
-  #        SLACK_CHANNEL: mi-pipeline
-  #        SLACK_COLOR: '#00FF80'
-  #        SLACK_ICON: https://slack.com/img/icons/app-57.png
-  #        SLACK_MESSAGE: 'El deploy de la app se realizó exitosamente'
-  #        SLACK_TITLE: Deploy Success
-  #        SLACK_USERNAME: Slack Notifier
-  #        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  feedbackDeployError: 
+    needs: [deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Error Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#FF4D4D'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'Ocurrió un error durante deploy de la app'
+          SLACK_TITLE: Deploy Error
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+  feedbackDeploySuccess: 
+    needs: [deploy]
+    if: success()
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: mi-pipeline
+          SLACK_COLOR: '#00FF80'
+          SLACK_ICON: https://slack.com/img/icons/app-57.png
+          SLACK_MESSAGE: 'El deploy de la app se realizó exitosamente'
+          SLACK_TITLE: Deploy Success
+          SLACK_USERNAME: Slack Notifier
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
 
