@@ -5,7 +5,8 @@ name: MiPrimerPipeline
 
 on:
   push:
-    branches: [ "master" ]
+    #branches: [ "master" ]
+    branches: [ "other" ]
 
 jobs:
   build:
@@ -146,39 +147,21 @@ jobs:
         dotnet build --configuration Release
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-  #sonarqubeCheck:
-  #  name: Code Inspection
-  #  needs: [build]
-  #  if: success()
-  #  runs-on: windows-latest
-  #  steps:
-  #  - name: SonarQube Quality Gate check
-  #    id: sonarqube-quality-gate-check
-  #    uses: sonarsource/sonarqube-quality-gate-action@master
-  #    with:
-  #      scanMetadataReportFile: .sonarqube/out/.sonar/report-task.txt
-  #    #Force to fail step after specific time.
-  #    timeout-minutes: 5
-  #    env:
-  #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #     SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }} #OPTIONAL
-    
-
-  feedbackSonarqubeError: 
-    needs: [sonarqubeCheck]
-    if: failure()
-    runs-on: ubuntu-latest
-    steps: 
-      - name: Slack Error Notification
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_CHANNEL: mi-pipeline
-          SLACK_COLOR: '#FF4D4D'
-          SLACK_ICON: https://slack.com/img/icons/app-57.png
-          SLACK_MESSAGE: 'Se detectó un error de calidad durante la inspección del código'
-          SLACK_TITLE: Code Inspection Error
-          SLACK_USERNAME: Slack Notifier
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  #feedbackSonarqubeError: 
+  #  needs: [sonarqubeCheck]
+  #  if: failure()
+  #  runs-on: ubuntu-latest
+  #  steps: 
+  #    - name: Slack Error Notification
+  #      uses: rtCamp/action-slack-notify@v2
+  #      env:
+  #        SLACK_CHANNEL: mi-pipeline
+  #        SLACK_COLOR: '#FF4D4D'
+  #        SLACK_ICON: https://slack.com/img/icons/app-57.png
+  #        SLACK_MESSAGE: 'Se detectó un error de calidad durante la inspección del código'
+  #        SLACK_TITLE: Code Inspection Error
+  #        SLACK_USERNAME: Slack Notifier
+  #        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
     
   deploy:
     name: Deploy Job
