@@ -37,7 +37,7 @@
 
     public int SumarNumeros(int a, int b)
     {
-        model.resultadoSuma = a + b;
+        model.resultadoSuma = a + b + 2;
 
         return model.resultadoSuma;
     }
@@ -49,7 +49,8 @@
         {
             sum += number;
         }
-        return sum / numbers.Length;
+        //return sum / numbers.Length;
+        return sum;
     }
 
     public int calculateSum(int[] numbers)
